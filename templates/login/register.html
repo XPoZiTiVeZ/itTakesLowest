@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form class='register mx-auto' method="POST" autocomplete="on">
+    {% csrf_token %}
+    <input type="username" name="username" placeholder="Имя пользователя" autocomplete="on" required>
+    <input type="password" name="password" placeholder="Пароль" autocomplete="on" required>
+    <input type="password" name="repeat-password" placeholder="Повторите пароль" autocomplete="on" required>
+    <button type="submit">Войти</button>
+    <small>
+        Есть аккаунт? <a class="mx-auto" href="{% url 'login' %}">Войдите</a>
+    </small>
+</form>
+{% endblock content%}

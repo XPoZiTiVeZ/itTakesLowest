@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block script %}
+// JavaScript function to redirect when a table row is clicked
+function redirectToURL(url) {
+    window.location.href = url;
+}
+
+// Add click event handler to table rows
+document.addEventListener("DOMContentLoaded", function() {
+    var rows = document.querySelectorAll("tr[data-href]");
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].addEventListener("click", function() {
+            var url = this.getAttribute("data-href");
+            redirectToURL(url);
+        });
+    }
+});
+
+// Функция для обновления таймера
+function updateTimer() {
+    const timers = document.querySelectorAll('span.timer')
+    timers.forEach(timer => {
+        let time = timer.getAttribute("data")
+        console.log(time)
+        // Установите целевую дату
+        var targetDate = new Date(time).getTime();
+
+        // Получите текущую дату и время
+        var currentDate = new Date().getTime();
+
+        // Вычислите оставшееся время
+        var timeRemaining = targetDate - currentDate;
+
+        if (timeRemaining <= 0) {
+            timer.innerHTML = "Игра закончилась!";
+        } else {
+            // Рассчитайте дни, часы, минуты и секунды
+            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            // Отобразите оставшееся время в элементе с id="timer"
+            timer.innerHTML = days + "д " + hours + "ч " + minutes + "м " + seconds + "с ";
+        }
+    });
+}
+
+// Обновляйте таймер каждую секунду
+setInterval(updateTimer, 1000); 
+{% endblock script %}
+
+{% block content %} 
+<div class = 'block mx-auto'>
+    <table>
+        <tr>
+            <th>№</th>
+            <th>Название игры</th> 
+            <th>Создатель</th>
+            <th>До конца осталось</th>
+        </tr> 
+        {% for game in games %} 
+        <tr data-href = "/allgames/{{ game.1 }}">
+            <th>{{ game.0 }}</th>
+            <th style='width: 125px; max-width: 125px;overflow-x: hidden;text-overflow: ellipsis;'>{{ game.2 }}</th> 
+            <th>{{ game.3 }}</th> 
+            <th><span class = "timer"data = '{{ game.4 }}'></span></th>
+        </tr>   
+        {% endfor %}
+    </table> 
+</div> 
+{% endblock content %}

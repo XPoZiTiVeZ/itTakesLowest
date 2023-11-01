@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block script %}
+// Add click event handler to table rows
+document.addEventListener("DOMContentLoaded", function() {
+    var rows = document.querySelectorAll("tr[data-href]");
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].addEventListener("click", function() {
+            var url = this.getAttribute("data-href");
+            redirectToURL(url);
+        });
+    }
+});
+
+// Функция для обновления таймера
+function updateTimer() {
+    // Установите целевую дату
+    var targetDate = new Date("{{enddate}}").getTime();
+
+    // Получите текущую дату и время
+    var currentDate = new Date().getTime();
+
+    // Вычислите оставшееся время
+    var timeRemaining = targetDate - currentDate;
+
+    if (timeRemaining <= 0) {
+        document.getElementById("timer").innerHTML = "Время вышло!";
+    } else {
+        // Рассчитайте дни, часы, минуты и секунды
+        var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        // Отобразите оставшееся время в элементе с id="timer"
+        document.getElementById("timer").innerHTML = days + "д " + hours + "ч " + minutes + "м " + seconds + "с ";
+    }
+}
+
+// Обновляйте таймер каждую секунду
+setInterval(updateTimer, 500);
+
+function copy() {
+    var clipboard = new ClipboardJS('#copy-button');
+    
+    clipboard.on('success', function (e) {
+        e.clearSelection();
+        alert("UUID скопирован в буфер обмена");
+    });
+    
+    clipboard.on('error', function (e) {
+        alert("Копирование не удалось. Попробуйте вручную.");
+    });
+}
+
+window.onload = copy
+{% endblock script%}
+
+{% block content %}
+<form class='games mx-auto' method="POST">
+    {% csrf_token %}
+    {% if ended %}
+        <h4 style='max-width: 100%;overflow: hidden;text-overflow: ellipsis;'>{{gamename}}</h4>
+        <a href="#" id="copy-button" data-clipboard-text="{{gamecode}}" style='display: block; margin-bottom: 10px'>Копировать UUID игры</a>
+        {% if winner.winner %}
+        <p>Победитель - {{winner.winner}}</p>
+        <p>Его цифра - {{winner.answer}}</p>
+        {% else %}
+        <p>Нет победителя</p>
+        {% endif %}
+        <p>Ваш ответ - {% if answer %}{{answer}}{% else %}нет ответа{% endif %}</p>
+        <a class='d-block mt-2' href='{% url 'allgames' %}/{{gamecode}}/delete'>{{ text }}</a>
+    {% else %}
+        <h4 style='max-width: 100%;overflow: hidden;text-overflow: ellipsis;'>{{gamename}}</h4>
+        <a href="#" id="copy-button" data-clipboard-text="{{gamecode}}" style='display: block; margin-bottom: 10px'>Копировать UUID игры</a>
+        <input type='number' name='answer' placeholder='Ваше число (целое и неотрицательное)' value='{{ answer }}' min="1" step="1" required>
+        <button type="submit">Ответить</button>
+        <a class='d-block mt-2' href='{% url 'allgames' %}/{{gamecode}}/delete'>{{ text }}</a>
+        {% if end %}
+        <a href='/allgames/{{gamecode}}/end'>Закончить игру досрочно</a>
+        {% else %}
+        {% endif %}
+        <p class='timer' style='margin: 0;'>Осталось времени до конца игры: <span id="timer"></span></p>
+    {% endif %}
+</form>
+{% endblock content %}

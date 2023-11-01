@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form class='games mx-auto' method="POST" autocomplete="on">
+    {% csrf_token %}
+    <input type='text' name='friendlyname' placeholder='Название игры, для их распознования', max_length=32>
+    <input type='date' name='end' value="{{ today }}">
+    <button type="submit">Создать игру</button>
+</form>
+{% endblock content %}
