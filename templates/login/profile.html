@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="block">
+    <h1 style='text-align: center; margin: 0;'>Профиль</h1>
+    <div class="username" style="display: flex; justify-content: space-between;">
+        <h2 style='width: fit-content;'>Имя пользователя:</h2><h2 style='width: fit-content;'>{{ request.user.username }}</h2>
+    </div>
+    <div class="games-wins" style="display: flex; justify-content: space-between;">
+        <h2 style='width: fit-content;'>Игр выиграно:</h2><h2 style='width: fit-content;'>{{ request.user.wins }}</h2>
+    </div>
+</div>
+{% endblock content %}

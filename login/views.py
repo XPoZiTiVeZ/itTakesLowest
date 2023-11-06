@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.core.exceptions import ValidationError
 from .models import CustomUser
 from .backends import CustomBackend
 
@@ -15,17 +16,25 @@ def registerUser(request):
                 messages.error(request, 'Пароли не совпадают')
                 return render(request, 'login/register.html')
             
-            if CustomUser.objects.filter(username=username).exists():
-                messages.error(request, 'Имя пользователя уже занято')
-                return render(request, 'login/register.html')
-            
-            user = CustomUser.objects.create_user(username=username, password=password)
-            user.username = username
-            user.save()
-            
-            user = CustomBackend.authenticate(request, username=username, password=password)
-            login(request, user, 'login.backends.CustomBackend')
-            return redirect('home')
+            try:
+                user = CustomUser.objects.create_user(username=username, password=password)
+                user.save()
+                
+                user = CustomBackend.authenticate(request, username=username, password=password)
+                login(request, user, 'login.backends.CustomBackend')
+                return redirect('home')
+            except Exception as e:
+                e = str(e)
+                if e == "UsernameSimilarity":
+                    messages.error(request, 'Имя пользователя слишком похоже на существующик имена пользователей')
+                elif e == 'UnallowedCharacters':
+                    messages.error(request, 'Неразрешённые символы в имени пользователя')
+                elif e == 'MoreThen3Digits':
+                    messages.error(request, 'Имя пользователя содержит больше 3 цифр')
+                elif e == 'UsernameExists':
+                    messages.error(request, 'Имя пользователя существует')
+                else:
+                    messages.error(request, e)
         return render(request, 'login/register.html')
     else:
         messages.warning(request, 'Вы уже имеете аккаунт')
@@ -46,7 +55,6 @@ def loginUser(request):
             
             login(request, user, 'login.backends.CustomBackend')
             messages.success(request, f'Добро пожаловать, {user.username}')
-            print('in')
             return redirect('home')
         return render(request, 'login/login.html')
     else:
@@ -60,4 +68,4 @@ def logoutUser(request):
     return redirect('home')
 
 def profile(request):
-    pass
+    return render(request, 'login/profile.html')

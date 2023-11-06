@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form class='games mx-auto' method="POST" action="{% url 'joingame' %}">
-    {% csrf_token %}
-    <input type='text' name='gameid' placeholder='UUID игры' required>
-    <button type="submit">Найти игру</button>
-</form>
+<div class="block">
+    <form class='games mx-auto' method="POST" action="{% url 'joingame' %}">
+        {% csrf_token %}
+        <input type='text' name='gameid' placeholder='ID игры' required>
+        <button type="submit">Найти игру</button>
+    </form>
+</div>
 {% endblock content %}

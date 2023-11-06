@@ -1,7 +1,11 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from django.core.exceptions import ValidationError
 from .managers import CustomManager
+from difflib import SequenceMatcher
+
+
 
 class CustomUser(AbstractBaseUser):
     ''' 
@@ -11,19 +15,18 @@ class CustomUser(AbstractBaseUser):
                           default = uuid.uuid4,
                           editable = False)
     username = models.CharField(verbose_name='Имя пользователя',
-                                 name='username',
-                                 max_length=32,
+                                 max_length=16,
                                  unique=True)
     firstname = models.CharField(verbose_name='Имя',
-                                 name='firstname',
                                  max_length=32)
     lastname = models.CharField(verbose_name='Фамилия',
-                                name='lastname',
                                 max_length=32)
     password = models.CharField(verbose_name='Пароль',
-                                name='password',
                                 max_length=128,
                                 help_text='Пароль')
+    wins = models.PositiveIntegerField(verbose_name='Победы',
+                                       default=0,
+                                       help_text='Победы')
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     
